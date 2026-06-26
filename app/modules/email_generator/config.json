@@ -1,0 +1,12 @@
+{
+  "id": "email_generator",
+  "label": "Email Campaign Writer",
+  "fields": [
+    { "name": "recipient", "type": "string", "required": true },
+    { "name": "offer", "type": "string", "required": true },
+    { "name": "tone", "type": "enum", "options": ["Professional", "Urgent", "Friendly", "Direct"], "default": "Friendly" },
+    { "name": "language", "type": "enum", "options": ["English", "Hindi", "Hinglish"], "default": "English" }
+  ],
+  "output_sections": ["subject_line", "body_text", "signature_cta"],
+  "template_key": "email_generator_v1"
+}

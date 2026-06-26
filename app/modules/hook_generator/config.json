@@ -1,0 +1,12 @@
+{
+  "id": "hook_generator",
+  "label": "Viral Hook Generator",
+  "fields": [
+    { "name": "topic", "type": "string", "required": true },
+    { "name": "hook_style", "type": "enum", "options": ["Curiosity", "Pain Point", "Shock", "Question", "Story"], "default": "Curiosity" },
+    { "name": "language", "type": "enum", "options": ["English", "Hindi", "Hinglish"], "default": "English" },
+    { "name": "count", "type": "integer", "required": false, "default": 5 }
+  ],
+  "output_sections": ["hooks"],
+  "template_key": "viral_hook_v1"
+}

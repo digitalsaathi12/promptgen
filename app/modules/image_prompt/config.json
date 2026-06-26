@@ -1,0 +1,12 @@
+{
+  "id": "image_prompt",
+  "label": "Image Prompt Generator",
+  "fields": [
+    { "name": "subject", "type": "string", "required": true },
+    { "name": "style", "type": "enum", "options": ["Photorealistic", "Cinematic", "3D Render", "Anime", "Fantasy Art"], "default": "Photorealistic" },
+    { "name": "lighting", "type": "enum", "options": ["Studio", "Volumetric", "Golden Hour", "Neon", "Moody Shadow"], "default": "Studio" },
+    { "name": "aspect_ratio", "type": "enum", "options": ["16:9", "9:16", "1:1", "4:3"], "default": "16:9" }
+  ],
+  "output_sections": ["midjourney", "dalle", "leonardo", "stable_diffusion"],
+  "template_key": "image_prompt_v1"
+}

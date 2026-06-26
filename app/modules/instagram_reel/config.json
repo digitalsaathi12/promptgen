@@ -1,0 +1,16 @@
+{
+  "id": "instagram_reel",
+  "label": "Instagram Reel Generator",
+  "fields": [
+    { "name": "business_name", "type": "string", "required": true },
+    { "name": "industry", "type": "string", "required": true },
+    { "name": "platform", "type": "enum", "options": ["Instagram", "YouTube", "Facebook"], "default": "Instagram" },
+    { "name": "language", "type": "enum", "options": ["English", "Hindi", "Hinglish"], "default": "English" },
+    { "name": "tone", "type": "enum", "options": ["Professional", "Casual", "Funny", "Emotional"], "default": "Professional" },
+    { "name": "audience", "type": "string", "required": false },
+    { "name": "cta", "type": "string", "required": false },
+    { "name": "duration", "type": "integer", "required": false, "default": 30 }
+  ],
+  "output_sections": ["hook", "intro", "body", "cta", "caption"],
+  "template_key": "instagram_reel_v1"
+}

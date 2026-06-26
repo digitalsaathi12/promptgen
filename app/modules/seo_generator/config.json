@@ -1,0 +1,12 @@
+{
+  "id": "seo_generator",
+  "label": "SEO Content Optimizer",
+  "fields": [
+    { "name": "topic", "type": "string", "required": true },
+    { "name": "keywords", "type": "string", "required": true },
+    { "name": "language", "type": "enum", "options": ["English", "Hindi", "Hinglish"], "default": "English" },
+    { "name": "type", "type": "enum", "options": ["Blog Outline", "Meta Tags", "Keywords Cluster"], "default": "Blog Outline" }
+  ],
+  "output_sections": ["meta_title", "meta_description", "headings_outline", "keywords_advice"],
+  "template_key": "seo_generator_v1"
+}

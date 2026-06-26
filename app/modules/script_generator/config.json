@@ -1,0 +1,14 @@
+{
+  "id": "script_generator",
+  "label": "Video Script Generator",
+  "fields": [
+    { "name": "topic", "type": "string", "required": true },
+    { "name": "platform", "type": "enum", "options": ["YouTube Long", "YouTube Short", "TikTok", "Vimeo"], "default": "YouTube Long" },
+    { "name": "language", "type": "enum", "options": ["English", "Hindi", "Hinglish"], "default": "English" },
+    { "name": "tone", "type": "enum", "options": ["Professional", "Casual", "Informative", "Inspiring"], "default": "Informative" },
+    { "name": "cta", "type": "string", "required": false },
+    { "name": "length_seconds", "type": "integer", "required": false, "default": 60 }
+  ],
+  "output_sections": ["hook", "body", "cta"],
+  "template_key": "video_script_v1"
+}
