@@ -21,6 +21,7 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
   // Global States
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [templateCopied, setTemplateCopied] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [activeOutputTab, setActiveOutputTab] = useState<string>("Expert Prompt");
@@ -265,6 +266,12 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setTemplateCopied(text);
+    setTimeout(() => setTemplateCopied(null), 2000);
   };
 
   // Form Validation
@@ -1859,7 +1866,11 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
                       className="text-gray-400 hover:text-primary-700 cursor-pointer"
                       title="Copy template"
                     >
-                      <Copy className="h-3.5 w-3.5" />
+                      {templateCopied === item.template ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-600 animate-fade-in" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
                     </button>
                   </div>
                   <h4 className="text-xs font-bold text-gray-800">{item.title}</h4>
