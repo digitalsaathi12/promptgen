@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { MessageSquare, Send, ArrowUp, Bot } from "lucide-react";
 import { MOCK_CHAT_MESSAGES } from "@/lib/mock-data";
 import { ChatMessage } from "@/lib/types";
+import { generateChat } from "@/lib/api";
 
 interface AIChatWidgetProps {
   initialMessages?: ChatMessage[];
 }
 
 export default function AIChatWidget({ initialMessages }: AIChatWidgetProps) {
-  const [activeModel, setActiveModel] = useState<"ChatGPT" | "Gemini" | "Claude">("ChatGPT");
+  const activeModel = "Gemini";
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages || MOCK_CHAT_MESSAGES);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -21,41 +23,51 @@ export default function AIChatWidget({ initialMessages }: AIChatWidgetProps) {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, loading]);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || loading) return;
 
+    const userMessageText = input.trim();
     const userMsg: ChatMessage = {
       role: "user",
-      text: input.trim(),
+      text: userMessageText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setLoading(true);
 
-    // Simulate AI response stream delay
-    setTimeout(() => {
-      const aiResponse = getSimulatedResponse(input.trim(), activeModel);
+    try {
+      // Map history payload
+      const historyPayload = messages.map(m => ({
+        role: m.role,
+        text: m.text
+      }));
+
+      const reply = await generateChat({
+        message: userMessageText,
+        history: historyPayload
+      });
+
       const aiMsg: ChatMessage = {
         role: "ai",
-        text: aiResponse,
+        text: reply,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, aiMsg]);
-    }, 800);
-  };
-
-  const getSimulatedResponse = (query: string, model: string): string => {
-    const q = query.toLowerCase();
-    if (q.includes("restaurant") || q.includes("hotel") || q.includes("food")) {
-      return `[Response from ${model} in Hinglish]\n\nयहाँ आपके restaurant के लिए 2 Hooks और Taglines हैं:\n\n1. "भूख लगी है? Direct Sri Ram Dhaba! 🍽️"\n2. "देशी स्वाद, माँ के हाथों जैसा प्यार!"\n\nAd copy के लिए Prompt Library का use करें।`;
+    } catch (err: any) {
+      console.error("[chat] error:", err);
+      const errorMsg: ChatMessage = {
+        role: "ai",
+        text: "⚠️ System offline. Please check if the Python backend is running on http://localhost:8000.",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+    } finally {
+      setLoading(false);
     }
-    if (q.includes("dentist") || q.includes("clinic") || q.includes("doctor")) {
-      return `[Response from ${model}]\n\nFor a dentist clinic in Indore, I recommend targeting localized keywords like 'best dentist in Indore near me' and 'affordable tooth cleaning Vijay Nagar'.`;
-    }
-    return `[Response from ${model}]\n\nThat is an interesting topic! I can help you compile marketing copies or prompts. Let me know which module (Script, Hooks, or SEO) you would like to construct.`;
   };
 
   return (
@@ -65,39 +77,17 @@ export default function AIChatWidget({ initialMessages }: AIChatWidgetProps) {
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-gray-800 tracking-tight flex items-center gap-1.5">
             <MessageSquare className="h-4.5 w-4.5 text-primary-700" />
-            AI Chat (Multi AI)
+            Gemini AI Chat
           </h3>
           <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold">
             Online
           </span>
         </div>
 
-        {/* Model Selector Tabs */}
-        <div className="flex bg-gray-50/70 p-1 rounded-xl border border-gray-100">
-          {(["ChatGPT", "Gemini", "Claude"] as const).map((model) => {
-            const isSelected = activeModel === model;
-            const dotColor = 
-              model === "ChatGPT" 
-                ? "bg-emerald-500" 
-                : model === "Gemini" 
-                  ? "bg-blue-500" 
-                  : "bg-orange-500";
-                  
-            return (
-              <button
-                key={model}
-                onClick={() => setActiveModel(model)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
-                  isSelected 
-                    ? "bg-white text-gray-800 shadow-2xs border border-gray-100" 
-                    : "text-gray-400 hover:text-gray-600"
-                }`}
-              >
-                <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
-                {model}
-              </button>
-            );
-          })}
+        {/* Gemini Badge */}
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-xl border border-blue-100">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+          <span className="text-xs font-bold text-blue-700">Gemini 2.5 Flash</span>
         </div>
 
         {/* Chat Messages scroll area */}
@@ -132,6 +122,19 @@ export default function AIChatWidget({ initialMessages }: AIChatWidgetProps) {
               </div>
             );
           })}
+
+          {loading && (
+            <div className="flex flex-col items-start">
+              <div className="flex items-start gap-2 max-w-[85%]">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-primary-700 shrink-0 text-[10px] font-bold">
+                  <Bot className="h-3.5 w-3.5 animate-bounce" />
+                </div>
+                <div className="p-3 bg-gray-50 text-gray-400 border border-gray-100/50 rounded-2xl rounded-tl-none text-[11px] font-medium animate-pulse">
+                  Gemini is thinking...
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -143,7 +146,7 @@ export default function AIChatWidget({ initialMessages }: AIChatWidgetProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={`Ask ${activeModel} anything...`}
+            placeholder="Ask Gemini anything..."
             className="flex-1 rounded-xl border border-gray-200 px-4 py-2 text-xs outline-hidden focus:border-primary-600 focus:bg-white transition-all duration-200"
           />
           <button

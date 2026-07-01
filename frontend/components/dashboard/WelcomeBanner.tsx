@@ -6,7 +6,7 @@ interface WelcomeBannerProps {
   userName?: string;
 }
 
-export default function WelcomeBanner({ userName = "Krishna" }: WelcomeBannerProps) {
+export default function WelcomeBanner() {
   return (
     <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-blue-700 via-blue-800 to-indigo-900 p-8 md:p-10 text-white shadow-xl">
       {/* Decorative vector sparkle/star indicators in the corners */}
@@ -20,7 +20,7 @@ export default function WelcomeBanner({ userName = "Krishna" }: WelcomeBannerPro
             Welcome to
           </span>
           <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-            The Digital Saathi {userName && `, ${userName}`} ✨
+            The Digital Saathi ✨
           </h2>
           <p className="text-sm md:text-base font-normal text-blue-100/90 leading-relaxed">
             All-in-one AI Toolkit for Prompts, Content, Images, Location Data & Business Growth. 

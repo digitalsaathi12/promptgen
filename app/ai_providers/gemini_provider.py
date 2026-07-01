@@ -1,3 +1,4 @@
+import json
 import httpx
 import logging
 from app.core.config import settings
@@ -27,14 +28,20 @@ class GeminiProvider(AIProvider):
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
                 "temperature": temperature,
-                "maxOutputTokens": max_tokens
+                "maxOutputTokens": max_tokens,
+                "thinkingConfig": {
+                    "thinkingBudget": 0
+                },
+                **kwargs
             }
         }
 
+        logger.info(f"[gemini_provider] request payload: {json.dumps(payload)}")
         async with httpx.AsyncClient() as client:
             resp = await client.post(url, json=payload, timeout=25.0)
             if resp.status_code == 200:
                 data = resp.json()
+                logger.info(f"[gemini_provider] raw response: {json.dumps(data)}")
                 try:
                     text = data["candidates"][0]["content"]["parts"][0]["text"]
                 except (KeyError, IndexError):

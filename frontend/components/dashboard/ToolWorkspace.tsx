@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { generateHooks, generateImagePrompt, generateVideoScript, generateContent, generatePrompt } from "@/lib/api";
 import { 
   Sparkles, Copy, Check, RefreshCw, Info, Settings, Play, Download, Bookmark,
   History, MapPin, Star, AlertCircle, HelpCircle, Eye, Trash2, Heart, Award,
-  Compass, Laptop, Flame, Video, Image as ImageIcon, Search, ChevronDown, CheckSquare
+  Compass, Laptop, Flame, Video, Image as ImageIcon, Search, ChevronDown, CheckSquare,
+  BookOpen
 } from "lucide-react";
 import LocationFinderWidget from "./LocationFinderWidget";
 import AIChatWidget from "./AIChatWidget";
@@ -24,6 +26,7 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
   const [activeOutputTab, setActiveOutputTab] = useState<string>("Expert Prompt");
   const [result, setResult] = useState<any>(null);
   const [activePreset, setActivePreset] = useState<string>("");
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -280,138 +283,181 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
     return Object.keys(errors).length === 0;
   };
 
-  const handleBriefSubmit = (e: React.FormEvent) => {
+  const handleBriefSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
+
     setLoading(true);
     setResult(null);
+    setApiError(null);
 
-    // Simulate backend brief compiler
-    setTimeout(() => {
-      setLoading(false);
-      setIsSaved(false);
-
+    try {
+      // ── PROMPT GENERATOR: calls /api/v1/generate/prompt ──
       if (tab === "prompt-generator") {
+        const output = await generatePrompt({
+          business: pBusinessName,
+          industry: pIndustry,
+          sub_industry: pSubIndustry,
+          description: pDescription,
+          category: pCategory,
+          prompt_type: pType,
+          audience: pAudience,
+          age_group: pAgeGroup,
+          location: pLocation,
+          language: pLanguage,
+          gender: pGender,
+          pain_points: pPainPoints,
+          goal: pGoal,
+          offer: pOffer,
+          platform: pPlatform,
+          tone: pTone,
+          depth: pDepth,
+          model: pModel,
+          length: pLength,
+          creativity: pCreativity,
+          cta: pCta,
+          hashtags: pHashtags,
+          emojis: pEmojis,
+          seo_keywords: pSeoKeywords,
+          competitor: pCompetitor,
+          multiple_versions: pMultipleVersions,
+          variations_count: pVariationsCount,
+        });
+
         setResult({
-          "Expert Prompt": 
-            `Act as an expert ${pCategory} consultant. Write a production-grade campaign prompt targeting a ${pAgeGroup} audience in ${pLocation}. ` +
-            `The business is '${pBusinessName}', operating in '${pIndustry}' / '${pSubIndustry}'. Description: ${pDescription}. ` +
-            `Use the ${pTone} tone and framework style optimized for the '${pPlatform}' channel. Primary goal is to ${pGoal}. ` +
-            `The key offer details: '${pOffer}'. Output requirements: Depth: ${pDepth}, Language: ${pLanguage}, Emoji density: ${pEmojis ? "Rich" : "None"}, ` +
-            `Include CTA: ${pCta ? "Yes" : "No"}, Include Hashtags: ${pHashtags ? "Yes" : "No"}, Exclude Keywords: ${pPainPoints}.`,
-          "Optimized Prompt": 
-            `Write high-converting ${pType} copy for ${pBusinessName} (${pIndustry}). Topic: ${pOffer}. Framework: AIDA. ` +
-            `Ensure it addresses audience pain points: ${pPainPoints}. Platform: ${pPlatform}. Output size: ${pLength}. Emojis: ${pEmojis}.`,
-          "ChatGPT Prompt": 
-            `[ChatGPT Optimized]\n` +
-            `You are ChatGPT, an expert copywriter. Craft a ${pType} for ${pBusinessName}. Target demographics: ${pAudience}. ` +
-            `Goal: ${pGoal}. Language: ${pLanguage}. Style: ${pTone}. Use negative constraints to avoid these words: "${pPainPoints}".`,
-          "Gemini Prompt": 
-            `[Gemini Optimized]\n` +
-            `Provide structured, analytical copywriting options for ${pBusinessName}'s new launch: ${pOffer}. Focus on: ${pGoal}. ` +
-            `Incorporate local context for ${pLocation} and write in ${pLanguage} using a ${pTone} voice.`,
-          "Claude Prompt": 
-            `[Claude Optimized]\n` +
-            `Using a precise, high-fidelity ${pTone.toLowerCase()} voice, draft a ${pType} for ${pBusinessName}. Target: ${pAudience}. ` +
-            `Incorporate the following USPs: "${pOffer}". Include hashtags: ${pHashtags}.`,
-          "Prompt Explanation": 
-            `This brief is compiled using the ${pDepth} depth preset. It targets the '${pGoal}' goal on ${pPlatform} by leveraging an optimized system context container. ` +
-            `It formats structured placeholders and instructs the model to optimize token limits for a ${pLength} length output.`
+          "Expert Prompt": output.expert_prompt,
+          "Optimized Prompt": output.optimized_prompt,
+          "Gemini Prompt": output.gemini_prompt,
+          "Prompt Explanation": output.explanation,
+          "Raw JSON": JSON.stringify(output, null, 2),
         });
         setActiveOutputTab("Expert Prompt");
-      } else if (tab === "script-generator") {
-        setResult({
-          "Visual Script": 
-            `🎬 **SCENE-BY-SCENE COMPILATION (${sDuration})**\n\n` +
-            `📍 **[0-5s] HOOK (Pain Point Style):**\n` +
-            `*Visual:* Close-up high detail shot showing customer looking worried or dental discomfort.\n` +
-            `*Camera Angle:* Tight macro lens.\n` +
-            `*Voiceover Script (Hinglish):* "क्या आप भी दाँतों के दर्द से परेशान हैं? Painless dental implants in Indore are now easier than ever!"\n\n` +
-            `📍 **[5-20s] STORY & SOLUTION:**\n` +
-            `*Visual:* Transition to doctor smiling, showing advanced painless laser implant equipment.\n` +
-            `*Camera Angle:* Medium shot, panning right.\n` +
-            `*Voiceover Script:* "${sBusinessName} लाता है सबसे आधुनिक तकनीक। नो दर्द, नो स्ट्रेस।"\n\n` +
-            `📍 **[20-30s] STRATEGIC CTA:**\n` +
-            `*Visual:* Call details overlays, link in bio graphic.\n` +
-            `*Camera Angle:* Wide static focus.\n` +
-            `*Voiceover:* "Book your free initial consultation click link below!"`,
-          "Shot List": 
-            `📹 **PRODUCTION SHOT LIST & ANGLES**\n` +
-            `- **Shot 1:** Macro close-up on tooth diagram (35mm lens, depth of field)\n` +
-            `- **Shot 2:** Over-the-shoulder shot of doctor consulting a patient\n` +
-            `- **Shot 3:** Product/Equipment showcase panning shot (stabilized gimbal, B-roll)\n` +
-            `- **Shot 4:** Happy client review close-up (85mm focal length)`,
-          "Copy & Metadata": 
-            `📝 **THUMBNAIL TITLE:** "5 Mins & Painless Implants? Indore Smiles Revealed!"\n\n` +
-            `💬 **CAPTION:**\n` +
-            `"दाँतों के दर्द को कहें अलविदा! 👋 Experience 100% painless and modern dental implants in IndoreSaket. Click link in bio to book your slots today!\n\n` +
-            `#PainlessImplants #IndoreDentist #SmilesDentalClinic #HealthIndore"`,
-          "Variations": 
-            `🎭 **SCRIPT VARIATIONS GENERATOR (3 Versions)**\n\n` +
-            `*Version 1 (Educational):* Focus on explaining how implant technology prevents bone loss.\n` +
-            `*Version 2 (Curiosity Hook):* "The absolute truth about teeth implants in Indore they won't tell you!"\n` +
-            `*Version 3 (Social Proof):* Focus entirely on client case study, before vs. after smiling shots.`
-        });
-        setActiveOutputTab("Visual Script");
+
+      // ── VIRAL HOOKS: calls /api/v1/generate/hooks ──
       } else if (tab === "viral-hooks") {
+        const resolvedPlatform: "Instagram" | "YouTube" | "Facebook" | "LinkedIn" =
+          hContentType === "YouTube" ? "YouTube" :
+          hContentType === "Facebook" ? "Facebook" :
+          hContentType === "LinkedIn" ? "LinkedIn" : "Instagram";
+
+        const output = await generateHooks({
+          niche: `${hIndustry} — ${hBusinessName}`,
+          audience: hAudience,
+          platform: resolvedPlatform,
+          count: parseInt(hCount, 10),
+          language: hLanguage,
+          hook_type: hHookType,
+          goal: hGoal,
+          length: hLength,
+          cta: hCta,
+          emojis: hEmojis,
+        });
+        // Format the hooks array into readable text for the output panel
+        const hooksText = output.hooks
+          .map((h: any, i: number) => {
+            const ctaLine = h.cta ? `\n   ↳ CTA: ${h.cta}` : "";
+            return `${i + 1}. [${h.type.toUpperCase()}] ${h.text}${ctaLine}`;
+          })
+          .join("\n\n");
         setResult({
-          "Hooks Output": 
-            `🔥 **TOP 5 VIRAL HOOKS COMPILATION:**\n\n` +
-            `1. **The Secret Formula:** "The absolute biggest secret to losing weight while eating your favorite sweets... 🤫"\n` +
-            `2. **FOMO Urgency:** "If you are still struggling with fitness at home, stop doing this immediately!"\n` +
-            `3. **Pain-Point Focus:** "Tired of spending hours at the gym without any results? Read this post."\n` +
-            `4. **Curiosity Hook:** "Why Indore's busiest professionals are shifting to A1 Gym workouts... 🏋️"\n` +
-            `5. **Shock Statement:** "Why everything you know about fats is 100% wrong."`,
-          "Hook Intelligence": 
-            `📊 **HOOK INTELLIGENCE & ENGAGEMENT METRICS:**\n` +
-            `- **Virality Score:** 94/100 (High emotional triggers)\n` +
-            `- **Average Watch-Time Estimate:** +18% initial retention\n` +
-            `- **Best Hook Recommendation:** Hook #1 ("The Secret Formula") is highly recommended for Reel platforms to drive maximum saves and share clicks.`
+          "Hooks Output": `🔥 **${output.hooks.length} VIRAL HOOKS — Powered by Gemini:**\n\n${hooksText}`,
+          "Raw JSON": JSON.stringify(output, null, 2),
         });
         setActiveOutputTab("Hooks Output");
+
+      // ── IMAGE PROMPT: calls /api/v1/generate/image-prompt ──
       } else if (tab === "image-generator") {
+        const output = await generateImagePrompt({
+          subject: iSubject,
+          business: iBusinessName,
+          industry: iIndustry,
+          topic: iTopic,
+          offer: iOffer,
+          purpose: iPurpose,
+          style: iStyle,
+          engine: iEngine,
+          aspect: iAspect,
+          resolution: iResolution,
+          lighting: iLighting,
+          camera: iCamera,
+          lens: iLens,
+          color_theme: iColorTheme,
+          background: iBackground,
+          negative: iNegative,
+          ref_style: iRefStyle,
+          high_detail: iHighDetail,
+          ultra_quality: iUltraQuality,
+        });
         setResult({
-          "Image Prompt Studio": 
-            `🎨 **COMPILED SYSTEM IMAGE PROMPT (${iEngine}):**\n\n` +
-            `"A premium food photography layout capturing ${iSubject}, configured for ${iPurpose}. Style: ${iStyle}, render engine: Octane render details, cinematic style, shot on ${iCamera} with ${iLens} lens, lighting setup: ${iLighting}, background format: ${iBackground}, aspect ratio: --ar ${iAspect}, color scheme: ${iColorTheme}. high detail, ultra quality, commercial safe --v 6.0"`,
-          "Negative Prompt": 
-            `🚫 **NEGATIVE TARGETING CONSTINTS:**\n\n` +
-            `"${iNegative}"`,
-          "Parameters": 
-            `⚙️ **GENERATOR PARAMETERS:**\n` +
-            `- Aspect Ratio: ${iAspect}\n` +
-            `- Resolution Preset: ${iResolution} Ultra\n` +
-            `- Upscale Multiplier: 2x Enabled\n` +
-            `- Background Removal: ${iRemoveBg ? "Active" : "Bypassed"}`
+          "Image Prompt Studio": `🎨 **GEMINI IMAGE PROMPT (${output.suggested_tool}):**\n\n"${output.image_prompt}"`,
+          "Negative Prompt": `🚫 **NEGATIVE CONSTRAINTS:**\n\n"${output.negative_prompt}"`,
+          "Parameters": `⚙️ **RECOMMENDED TOOL:** ${output.suggested_tool}\n- Aspect Ratio: ${iAspect}\n- Resolution: ${iResolution}\n- Engine: ${iEngine}\n- Background Removal: ${iRemoveBg ? "Active" : "Bypassed"}`,
         });
         setActiveOutputTab("Image Prompt Studio");
+
+      // ── VIDEO SCRIPT: calls /api/v1/generate/video-script ──
+      } else if (tab === "script-generator") {
+        const durationMap: Record<string, number> = {
+          "15 sec": 15, "30 sec": 30, "45 sec": 45,
+          "60 sec": 60, "90 sec": 90, "3 min": 180, "5 min": 300
+        };
+        const seconds = durationMap[sDuration] ?? 30;
+        const output = await generateVideoScript({
+          business: sBusinessName,
+          industry: sIndustry,
+          platform: sPlatform,
+          duration: sDuration,
+          duration_seconds: seconds,
+          style: sStyle,
+          hook_type: sHookType,
+          audience: sAudience,
+          language: sLanguage,
+          tone: sTone,
+          cta_style: sCtaStyle,
+          visual_style: sVisualStyle,
+          include_breakdown: sIncludeBreakdown,
+          include_angles: sIncludeAngles,
+          include_shot_list: sIncludeShotList,
+          include_vo_script: sIncludeVoScript,
+          include_caption: sIncludeCaption,
+          include_hashtags: sIncludeHashtags,
+          include_thumbnail: sIncludeThumbnail,
+          include_youtube_desc: sIncludeYoutubeDesc,
+        });
+        const scriptResult: Record<string, string> = {
+          "Visual Script": `🎬 **HOOK:**\n${output.hook}\n\n📝 **SCRIPT:**\n${output.script}`,
+          "CTA": `📣 **CALL TO ACTION:**\n\n${output.cta}`,
+        };
+        if (output.shot_list?.length) scriptResult["Shot List"] = output.shot_list.join("\n");
+        if (output.social_caption) scriptResult["Caption"] = `📱 **SOCIAL CAPTION:**\n\n${output.social_caption}`;
+        if (output.hashtags) scriptResult["Hashtags"] = `#️⃣ **HASHTAGS:**\n\n${output.hashtags}`;
+        if (output.thumbnail_concept) scriptResult["Thumbnail"] = `🖼️ **THUMBNAIL CONCEPT:**\n\n${output.thumbnail_concept}`;
+        if (output.youtube_description) scriptResult["YouTube Desc"] = output.youtube_description;
+        scriptResult["Raw JSON"] = JSON.stringify(output, null, 2);
+        setResult(scriptResult);
+        setActiveOutputTab("Visual Script");
+
+      // ── CONTENT WRITER: falls through to location-finder (local mock) ──
       } else if (tab === "location-finder") {
         setResult({
-          "Leads Output": 
+          "Leads Output":
             `📍 **LOCAL BUSINESS LEADS FOUND IN ${lCity}:**\n\n` +
             `1. **Sri Ram Dental Clinic Saket**\n` +
-            `   - Phone: +91 99887 76655 | Email: contact@sriramdental.in\n` +
-            `   - Web: www.sriramdentalclinic.in | Address: saket lane 4 Indore\n` +
-            `   - Rating: 4.8 ⭐ (128 reviews) | Verified Status: YES\n\n` +
+            `   - Phone: +91 99887 76655 | Rating: 4.8 ⭐\n\n` +
             `2. **Apex Smile Care Vijay Nagar**\n` +
-            `   - Phone: +91 98989 88888 | Email: info@apexsmile.in\n` +
-            `   - Web: www.apexsmilecare.com | Address: C21 Mall area Indore\n` +
-            `   - Rating: 4.6 ⭐ (94 reviews) | Verified Status: YES\n\n` +
+            `   - Phone: +91 98989 88888 | Rating: 4.6 ⭐\n\n` +
             `3. **Indore Orthodontic Center**\n` +
-            `   - Phone: +91 95555 44444 | Email: help@indoredental.com\n` +
-            `   - Web: www.indoredentalcenter.com | Address: Saket main road\n` +
-            `   - Rating: 4.7 ⭐ (112 reviews) | Verified Status: YES`,
-          "SEO Intelligence": 
-            `📊 **LOCAL SEO KEYWORDS & RANKINGS:**\n` +
-            `- **High Intent Keywords:** "best dentist saket indore", "painless implants indore"\n` +
-            `- **Local Ranking Estimate:** Sri Ram Dental ranks Top 3 in Google Local Map Pack.\n` +
-            `- **Competitors Analysis:** Apex Smile is currently running Google local service ads.`
+            `   - Phone: +91 95555 44444 | Rating: 4.7 ⭐`,
         });
         setActiveOutputTab("Leads Output");
       }
-    }, 1500);
+    } catch (err: any) {
+      console.error("[generate] API error:", err);
+      setApiError(err?.message ?? "Something went wrong. Make sure the Python backend is running on port 8000.");
+    } finally {
+      setLoading(false);
+      setIsSaved(false);
+    }
   };
 
   // Saved templates logger
@@ -755,11 +801,8 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
                   onChange={(e) => setPModel(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 py-2 px-3 text-xs outline-hidden focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 transition-all font-medium cursor-pointer"
                 >
-                  <option value="ChatGPT">ChatGPT</option>
-                  <option value="Gemini">Gemini</option>
-                  <option value="Claude">Claude</option>
-                  <option value="Llama">Llama</option>
-                  <option value="Ollama">Ollama (Local)</option>
+                  <option value="Gemini">Gemini 2.5 Flash</option>
+                  <option value="Llama">Llama (Local)</option>
                 </select>
               </div>
             </div>
@@ -1765,6 +1808,126 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
     }
   };
 
+  const renderWorkspaceContent = () => {
+    switch (tab) {
+      case "prompt-library":
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-gray-800 tracking-tight flex items-center gap-1.5">
+                <BookOpen className="h-4.5 w-4.5 text-primary-700" />
+                Prompt Library Templates
+              </h3>
+              <span className="text-[10px] bg-blue-50 text-primary-700 px-2 py-0.5 rounded-full font-bold">
+                1000+ Active Templates
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                {
+                  title: "Festival Sweets Special Offer",
+                  desc: "Generate viral copy for sweets, desserts, and local bakery special events.",
+                  category: "Marketing",
+                  template: "Write a casual Hinglish post for my sweets shop..."
+                },
+                {
+                  title: "Local Dentist Clinic Lead Gen",
+                  desc: "Attract clinic appointments using location-targeted local campaigns.",
+                  category: "Leads",
+                  template: "Generate 3 local ad templates for dental implants..."
+                },
+                {
+                  title: "Tech Startup Launch Campaign",
+                  desc: "Professional B2B copy to announce product features and launches.",
+                  category: "SaaS",
+                  template: "Act as an expert marketer. Write an introductory email..."
+                },
+                {
+                  title: "Instagram Reel Script Outline",
+                  desc: "Hook-Intro-Body-CTA structure optimized for short visual videos.",
+                  category: "Social Media",
+                  template: "Create a 30s video script for custom products..."
+                }
+              ].map((item, idx) => (
+                <div key={idx} className="p-4 bg-gray-50 border border-gray-100 rounded-xl space-y-3 hover:border-blue-200 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] bg-white border border-gray-100 font-bold px-2 py-0.5 rounded-full text-gray-500 uppercase">
+                      {item.category}
+                    </span>
+                    <button 
+                      onClick={() => handleCopy(item.template)}
+                      className="text-gray-400 hover:text-primary-700 cursor-pointer"
+                      title="Copy template"
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <h4 className="text-xs font-bold text-gray-800">{item.title}</h4>
+                  <p className="text-[11px] text-gray-500 font-medium leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "ai-chat":
+        return (
+          <div className="h-[480px]">
+            <AIChatWidget />
+          </div>
+        );
+
+      case "saved-results":
+        return (
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-800 tracking-tight flex items-center gap-1.5">
+              <Bookmark className="h-4.5 w-4.5 text-primary-700" />
+              Saved Prompts & Marketing Copies
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { title: "Diwali Sweet Post Copy", tool: "Prompt Generator", time: "2 days ago" },
+                { title: "Dentist Local Ad Campaign", tool: "Script Generator", time: "3 days ago" },
+                { title: "Shoe poster visual prompt", tool: "Image Generator", time: "5 days ago" }
+              ].map((item, idx) => (
+                <div key={idx} className="p-4 bg-white border border-gray-100 rounded-xl flex items-center justify-between shadow-2xs">
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-800">{item.title}</h4>
+                    <span className="text-[9px] text-gray-400 font-semibold">{item.tool} • {item.time}</span>
+                  </div>
+                  <button className="text-xs font-bold text-primary-700 hover:underline cursor-pointer">
+                    Reuse
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "history":
+        return (
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-800 tracking-tight flex items-center gap-1.5">
+              <History className="h-4.5 w-4.5 text-primary-700" />
+              Activity Log & Generations Audit
+            </h3>
+            <RecentActivityWidget />
+          </div>
+        );
+
+      default:
+        return (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400 text-center">
+            <Info className="h-10 w-10 text-gray-300 stroke-[1.5] mb-2" />
+            <h4 className="text-xs font-bold">Module Under Construction</h4>
+            <p className="text-[10px] max-w-[250px] leading-normal mt-1">
+              This module ({tab}) is successfully registered. Core functionalities are ready for backend binding.
+            </p>
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Back button and page title */}
@@ -1839,7 +2002,7 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
               </div>
             )}
 
-            {renderBriefForm()}
+            {renderGeneratorForm()}
           </div>
 
           {/* Right Column: AI Output Panel */}
@@ -1879,9 +2042,26 @@ export default function ToolWorkspace({ tab, onNavigateBack }: ToolWorkspaceProp
                 <div className="flex flex-col items-center justify-center py-28 gap-4 text-center">
                   <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-50 border-t-primary-700" />
                   <div>
-                    <h4 className="text-xs font-bold text-gray-700">Synthesizing Brief Model Parameters...</h4>
-                    <p className="text-[10px] text-gray-400 font-semibold animate-pulse">Running optimizations & formatting variables...</p>
+                    <h4 className="text-xs font-bold text-gray-700">Calling Gemini AI...</h4>
+                    <p className="text-[10px] text-gray-400 font-semibold animate-pulse">Generating real output from Gemini 2.5 Flash...</p>
                   </div>
+                </div>
+              ) : apiError ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-3 text-center px-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+                    <AlertCircle className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-red-700">Generation Failed</h4>
+                    <p className="text-[11px] text-gray-500 font-medium mt-1 max-w-sm">{apiError}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setApiError(null)}
+                    className="text-[10px] font-bold text-primary-700 underline cursor-pointer mt-1"
+                  >
+                    Dismiss
+                  </button>
                 </div>
               ) : result ? (
                 <div className="space-y-4">

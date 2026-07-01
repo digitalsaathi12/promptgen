@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Crown, Check, X, Bot } from "lucide-react";
+import { X, Bot } from "lucide-react";
 import { SIDEBAR_ITEMS } from "@/lib/mock-data";
 import { SidebarItem } from "@/lib/types";
 
@@ -90,36 +90,6 @@ export default function Sidebar({
           </nav>
         </div>
 
-        {/* Bottom Pinned Card: Upgrade to Pro */}
-        <div className="mt-6">
-          <div className="rounded-2xl bg-blue-50/70 p-4 border border-blue-100/50">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-100 text-primary-700">
-                <Crown className="h-4 w-4" />
-              </div>
-              <span className="text-xs font-bold text-primary-900">
-                Upgrade to Pro
-              </span>
-            </div>
-            <ul className="space-y-1.5 mb-4 text-[11px] text-gray-600 font-medium">
-              {[
-                "Unlimited Prompts",
-                "Image Generation",
-                "Location & Leads",
-                "Competitor Analysis",
-                "Priority Support"
-              ].map((feature, i) => (
-                <li key={i} className="flex items-center gap-2">
-                  <Check className="h-3 w-3 text-primary-600 stroke-[3]" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <button className="w-full bg-primary-700 hover:bg-primary-800 text-white text-xs font-bold py-2 rounded-xl transition-all duration-200 shadow-xs shadow-blue-500/10 cursor-pointer">
-              Upgrade Now
-            </button>
-          </div>
-        </div>
       </aside>
     </>
   );

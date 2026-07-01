@@ -17,17 +17,17 @@ import {
 import { SidebarItem, FeatureCardItem, BusinessResult, ChatMessage, RecentActivity, WhyFeature } from "./types";
 
 export const SIDEBAR_ITEMS: SidebarItem[] = [
-  { icon: LayoutDashboard, label: "Dashboard", slug: "dashboard" },
-  { icon: BookOpen, label: "Prompt Library", slug: "prompt-library" },
-  { icon: PenLine, label: "Prompt Generator", slug: "prompt-generator" },
-  { icon: FileText, label: "Script Generator", slug: "script-generator" },
-  { icon: Zap, label: "Viral Hooks", slug: "viral-hooks" },
-  { icon: ImageIcon, label: "Image Generator", slug: "image-generator" },
-  { icon: MapPin, label: "Location Finder", slug: "location-finder" },
-  { icon: BarChart2, label: "Competitor Analysis", slug: "competitor-analysis" },
-  { icon: MessageSquare, label: "AI Chat (Multi AI)", slug: "ai-chat" },
-  { icon: Bookmark, label: "Saved Results", slug: "saved-results" },
-  { icon: History, label: "History", slug: "history" }
+  { icon: LayoutDashboard, label: "Dashboard",           slug: "dashboard" },
+  { icon: ImageIcon,       label: "Image Generator",    slug: "image-generator" },
+  { icon: FileText,        label: "Script Generator",   slug: "script-generator" },
+  { icon: Zap,             label: "Viral Hooks",        slug: "viral-hooks" },
+  { icon: PenLine,         label: "Prompt Generator",   slug: "prompt-generator" },
+  { icon: BookOpen,        label: "Prompt Library",     slug: "prompt-library" },
+  { icon: MapPin,          label: "Location Finder",    slug: "location-finder" },
+  { icon: BarChart2,       label: "Competitor Analysis", slug: "competitor-analysis" },
+  { icon: MessageSquare,   label: "AI Chat (Multi AI)", slug: "ai-chat" },
+  { icon: Bookmark,        label: "Saved Results",      slug: "saved-results" },
+  { icon: History,         label: "History",            slug: "history" },
 ];
 
 export const FEATURE_CARDS: FeatureCardItem[] = [
@@ -143,8 +143,8 @@ export const MOCK_ACTIVITIES: RecentActivity[] = [
 export const WHY_FEATURES: WhyFeature[] = [
   {
     icon: Bot,
-    title: "Multi AI Support",
-    description: "Works with ChatGPT, Gemini & Claude"
+    title: "Gemini AI Powered",
+    description: "Powered by Google Gemini 2.5 Flash"
   },
   {
     icon: MapPin,
