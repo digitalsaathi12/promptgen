@@ -92,14 +92,14 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
             className="flex items-center gap-2 rounded-lg p-1 text-left hover:bg-gray-50 cursor-pointer"
           >
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 font-bold text-primary-700 shadow-sm border border-primary-200">
-              K
+              A
             </div>
             <div className="hidden md:block pr-1">
               <p className="text-xs font-bold text-gray-700 leading-none">
-                Krishna
+                Admin User
               </p>
               <span className="text-[10px] text-gray-400 font-medium">
-                Free Plan
+                Enterprise
               </span>
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-gray-400 hidden md:block" />
